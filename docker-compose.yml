@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   postgres:
+    image: postgres:latest
     container_name: postgres
-    image: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -15,11 +15,12 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - postgres
+      postgres:
+        ipv4_address: 172.33.1.1
     restart: unless-stopped
   pgadmin:
+    image: dpage/pgadmin4:latest
     container_name: pgadmin
-    image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
@@ -28,13 +29,18 @@ services:
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
-      - postgres
+      postgres:
+        ipv4_address: 172.33.1.2
     restart: unless-stopped
-#
+
 networks:
   postgres:
+    name: postgres
     driver: bridge
-#
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.33.0.0/16
 volumes:
     postgres:
     pgadmin:
